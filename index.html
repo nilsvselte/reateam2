@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Model Evaluations</title>
+    <title>Special Participation A - AI Model Evaluations</title>
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap"
       rel="stylesheet"
@@ -350,8 +350,14 @@
   <body>
     <div class="container">
       <header>
-        <h1>AI Model Evaluations</h1>
-        <p class="subtitle">Deep learning homework performance analysis</p>
+        <h1>Special Participation A</h1>
+        <p class="subtitle">AI Model Evaluations on Deep Learning Homework</p>
+        <p
+          class="authors"
+          style="color: #888; font-size: 0.85rem; margin-top: 0.5rem"
+        >
+          By Nils Selte, Justin Li, Hanna Røed, Dagny Streit
+        </p>
         <div class="stats">
           <span><strong id="total-posts">-</strong> evaluations</span>
           <span><strong id="total-models">-</strong> models</span>
@@ -420,47 +426,161 @@
       }
 
       function analyzePosts(posts) {
-        const strengthTerms = {
-          "one-shot": "solved problems in one attempt",
-          correct: "produced correct answers",
-          accurate: "gave accurate responses",
-          impressive: "showed impressive reasoning",
-          strong: "demonstrated strong understanding",
-          excellent: "excellent performance",
-          perfect: "achieved perfect scores",
-          elegant: "provided elegant solutions",
-          intuitive: "gave intuitive explanations",
-          thorough: "was thorough in analysis",
-        };
+        // Detailed strength patterns based on actual CSV content
+        const strengthPatterns = [
+          {
+            pattern: /one[- ]?shot/i,
+            desc: "solved problems on first attempt without iteration",
+          },
+          {
+            pattern: /100%\s*success/i,
+            desc: "achieved 100% success rate on tasks",
+          },
+          {
+            pattern: /graduate[- ]?level/i,
+            desc: "demonstrated graduate-level competency",
+          },
+          {
+            pattern: /correct.*analytical/i,
+            desc: "produced correct analytical solutions",
+          },
+          {
+            pattern: /strong.*conceptual/i,
+            desc: "showed strong conceptual understanding",
+          },
+          {
+            pattern: /clear.*explanation|well[- ]?structured/i,
+            desc: "provided clear, well-structured explanations",
+          },
+          {
+            pattern: /mathematical.*derivation|precise.*math/i,
+            desc: "handled complex mathematical derivations",
+          },
+          {
+            pattern: /multimodal|latex.*screenshot|ocr/i,
+            desc: "successfully processed multimodal inputs (LaTeX, screenshots)",
+          },
+          {
+            pattern: /intuitive.*explanation|intuitive.*insight/i,
+            desc: "gave intuitive explanations beyond the question",
+          },
+          {
+            pattern: /self[- ]?verification|double[- ]?check/i,
+            desc: "demonstrated self-verification behavior",
+          },
+          {
+            pattern: /organized.*thought|logical.*flow/i,
+            desc: "organized reasoning into clear logical steps",
+          },
+          {
+            pattern: /spectral.*norm|matrix.*computation/i,
+            desc: "handled complex matrix computations accurately",
+          },
+          {
+            pattern: /recognized.*nonsensical|resist.*hallucination/i,
+            desc: "recognized ill-formed questions and avoided hallucination",
+          },
+          {
+            pattern: /concise|straightforward/i,
+            desc: "provided concise, straightforward answers",
+          },
+          {
+            pattern: /intermediate.*variable|increase.*readability/i,
+            desc: "improved readability by defining intermediate variables",
+          },
+        ];
 
-        const weaknessTerms = {
-          hallucination: "hallucinated information",
-          struggled: "struggled with some problems",
-          failed: "failed on certain tasks",
-          incorrect: "gave incorrect answers",
-          wrong: "made errors",
-          mistake: "made mistakes",
-          skipped: "skipped steps in reasoning",
-          missing: "missing key details",
-          confused: "showed confusion",
-        };
+        // Detailed weakness patterns based on actual CSV content
+        const weaknessPatterns = [
+          {
+            pattern: /hallucin|pretended|imagined.*answer|made up/i,
+            desc: "hallucinated or fabricated information when data was unavailable",
+          },
+          {
+            pattern: /sign.*error|sign.*wrong/i,
+            desc: "made sign errors in signal processing computations",
+          },
+          {
+            pattern: /notation.*inconsisten|variable.*name.*chang/i,
+            desc: "showed notation inconsistencies (changing variable names)",
+          },
+          {
+            pattern: /skipped.*step|missing.*logic/i,
+            desc: "skipped steps in reasoning, making solutions hard to follow",
+          },
+          {
+            pattern: /numerical.*calculation.*error|arithmetic.*error/i,
+            desc: "made errors in numerical calculations",
+          },
+          {
+            pattern: /convolution.*correlation|convention.*error/i,
+            desc: "confused convolution vs. correlation conventions",
+          },
+          {
+            pattern: /required.*prompt|after.*prompt|needed.*hint/i,
+            desc: "required additional prompting to reach correct answer",
+          },
+          {
+            pattern: /missing.*factor|lost.*factor/i,
+            desc: "lost or missed factors in multi-step derivations",
+          },
+          {
+            pattern: /default.*big[- ]?o|format.*wrong/i,
+            desc: "defaulted to wrong notation/format conventions",
+          },
+          {
+            pattern: /boundary.*case.*error|padded.*error/i,
+            desc: "made errors in boundary/edge case computations",
+          },
+          {
+            pattern: /spatial.*confusion|visual.*confus|horizontal.*vertical/i,
+            desc: "confused spatial/visual orientations",
+          },
+          {
+            pattern: /not.*tight.*bound|bound.*wasn.*tight/i,
+            desc: "provided bounds that weren't as tight as needed",
+          },
+          {
+            pattern: /overly.*simplified|over.*rewritten/i,
+            desc: "over-simplified to the point of losing information",
+          },
+          {
+            pattern: /academic.*integrity|refused.*solve/i,
+            desc: "initially refused to solve due to academic integrity concerns",
+          },
+        ];
 
-        const strengths = new Set();
-        const weaknesses = new Set();
+        const strengths = [];
+        const weaknesses = [];
+        let oneShotCount = 0;
+        let totalWithText = 0;
 
         posts.forEach((post) => {
           const text = (post.text || "").toLowerCase();
-          for (const [term, desc] of Object.entries(strengthTerms)) {
-            if (text.includes(term)) strengths.add(desc);
-          }
-          for (const [term, desc] of Object.entries(weaknessTerms)) {
-            if (text.includes(term)) weaknesses.add(desc);
-          }
+          if (!text) return;
+          totalWithText++;
+
+          // Count one-shots for statistics
+          if (/one[- ]?shot/i.test(text)) oneShotCount++;
+
+          strengthPatterns.forEach(({ pattern, desc }) => {
+            if (pattern.test(text) && !strengths.includes(desc)) {
+              strengths.push(desc);
+            }
+          });
+
+          weaknessPatterns.forEach(({ pattern, desc }) => {
+            if (pattern.test(text) && !weaknesses.includes(desc)) {
+              weaknesses.push(desc);
+            }
+          });
         });
 
         return {
-          strengths: [...strengths].slice(0, 3),
-          weaknesses: [...weaknesses].slice(0, 3),
+          strengths: strengths.slice(0, 4),
+          weaknesses: weaknesses.slice(0, 4),
+          oneShotCount,
+          totalWithText,
         };
       }
 
@@ -469,30 +589,54 @@
         const models = [
           ...new Set(posts.map((p) => p.base_model).filter(Boolean)),
         ];
+        const versions = [
+          ...new Set(posts.map((p) => p.version).filter(Boolean)),
+        ];
 
-        let html = `<strong>${posts.length}</strong> evaluation${
-          posts.length !== 1 ? "s" : ""
-        } from <strong>${models.length}</strong> model${
-          models.length !== 1 ? "s" : ""
-        }.`;
+        let html = `<div style="margin-bottom: 0.75rem;"><strong>${
+          posts.length
+        }</strong> evaluation${posts.length !== 1 ? "s" : ""}`;
+
+        if (models.length > 0) {
+          html += ` across <strong>${models.length}</strong> model${
+            models.length !== 1 ? "s" : ""
+          }`;
+          if (models.length <= 3) {
+            html += ` (${models.join(", ")})`;
+          }
+        }
+        html += `.`;
+
+        // Add one-shot statistics if available
+        if (analysis.oneShotCount > 0 && analysis.totalWithText > 0) {
+          const pct = Math.round(
+            (analysis.oneShotCount / analysis.totalWithText) * 100
+          );
+          html += ` <strong>${analysis.oneShotCount}</strong> of ${analysis.totalWithText} detailed reports mention one-shot success (${pct}%).`;
+        }
+        html += `</div>`;
 
         if (analysis.strengths.length > 0) {
-          html += ` <span class="summary-strengths"><strong>Strengths:</strong> ${analysis.strengths.join(
-            ", "
-          )}.</span>`;
+          html += `<div style="margin-bottom: 0.5rem;"><span class="summary-strengths"><strong>Strengths:</strong></span><ul style="margin: 0.25rem 0 0 1.25rem; padding: 0;">`;
+          analysis.strengths.forEach((s) => {
+            html += `<li style="color: #2d7a2d; margin-bottom: 0.15rem;">${s}</li>`;
+          });
+          html += `</ul></div>`;
         }
 
         if (analysis.weaknesses.length > 0) {
-          html += ` <span class="summary-weaknesses"><strong>Weaknesses:</strong> ${analysis.weaknesses.join(
-            ", "
-          )}.</span>`;
+          html += `<div><span class="summary-weaknesses"><strong>Weaknesses:</strong></span><ul style="margin: 0.25rem 0 0 1.25rem; padding: 0;">`;
+          analysis.weaknesses.forEach((w) => {
+            html += `<li style="color: #a33; margin-bottom: 0.15rem;">${w}</li>`;
+          });
+          html += `</ul></div>`;
         }
 
         if (
           analysis.strengths.length === 0 &&
           analysis.weaknesses.length === 0
         ) {
-          html += " No detailed analysis available from post content.";
+          html += `<div style="color: #888; font-style: italic;">No detailed analysis available — posts may lack descriptive content.</div>`;
         }
 
         return html;
@@ -588,7 +732,7 @@
             const summary = generateSummary(posts, `HW ${hw}`);
 
             return `
-          <div class="section" id="hw-${hw}">
+          <div class="section collapsed" id="hw-${hw}">
             <div class="section-header" onclick="toggleSection('hw-${hw}')">
               <span class="section-toggle">▼</span>
               <span class="section-label">HW ${hw}</span>
@@ -601,7 +745,7 @@
                 .sort((a, b) => b[1].length - a[1].length)
                 .map(
                   ([model, modelPosts], idx) => `
-                  <div class="model-group" id="hw-${hw}-model-${idx}">
+                  <div class="model-group collapsed" id="hw-${hw}-model-${idx}">
                     <div class="model-header" onclick="toggleModelGroup('hw-${hw}-model-${idx}')">
                       <span class="model-toggle">▼</span>
                       <span class="model-name">${model}</span>
@@ -669,7 +813,7 @@
             const summary = generateSummary(posts, model);
 
             return `
-          <div class="section" id="model-${modelIdx}">
+          <div class="section collapsed" id="model-${modelIdx}">
             <div class="section-header" onclick="toggleSection('model-${modelIdx}')">
               <span class="section-toggle">▼</span>
               <span class="section-label">${posts.length}</span>
@@ -684,7 +828,7 @@
                 .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
                 .map(
                   ([hw, hwPosts], idx) => `
-                  <div class="model-group" id="model-${modelIdx}-hw-${idx}">
+                  <div class="model-group collapsed" id="model-${modelIdx}-hw-${idx}">
                     <div class="model-header" onclick="toggleModelGroup('model-${modelIdx}-hw-${idx}')">
                       <span class="model-toggle">▼</span>
                       <span class="model-name">Homework ${hw}</span>
